@@ -17,10 +17,24 @@ class Settings(BaseSettings):
     base_url: str
     port: int = 8080
     
-    # Twilio configuration
-    twilio_account_sid: str
-    twilio_auth_token: str
+    # Telephony provider selection
+    telephony_provider: str = "twilio"  # Options: "twilio" or "sip"
+    
+    # Twilio configuration (when telephony_provider="twilio")
+    twilio_account_sid: Optional[str] = None
+    twilio_auth_token: Optional[str] = None
     twilio_phone_number: Optional[str] = None
+    
+    # SIP configuration (when telephony_provider="sip")
+    sip_server: Optional[str] = None  # SIP server address (e.g., sip.provider.com)
+    sip_port: int = 5060
+    sip_username: Optional[str] = None
+    sip_password: Optional[str] = None
+    sip_domain: Optional[str] = None  # SIP domain/realm
+    sip_extension: Optional[str] = None  # Extension number
+    sip_transport: str = "udp"  # Options: "udp", "tcp", "tls"
+    sip_stun_server: Optional[str] = None  # STUN server for NAT traversal
+    sip_turn_server: Optional[str] = None  # TURN server for media relay
     
     # OpenAI configuration
     openai_api_key: str
