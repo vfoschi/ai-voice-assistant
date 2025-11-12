@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "voice-assistant.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "voice-assistant.labels" . | nindent 4 }}
+data:
+  ENVIRONMENT: {{ .Values.config.environment | quote }}
+  DEBUG: {{ .Values.config.debug | quote }}
+  PORT: {{ .Values.config.port | quote }}
+  LOG_LEVEL: {{ .Values.config.logLevel | quote }}
+  BASE_URL: {{ .Values.config.baseUrl | quote }}
+  OPENAI_MODEL: {{ .Values.config.openaiModel | quote }}
+  ELEVENLABS_VOICE_ID: {{ .Values.config.elevenlabsVoiceId | quote }}
+  REDIS_URL: {{ .Values.config.redisUrl | quote }}
+  INITIAL_MESSAGE: {{ .Values.config.initialMessage | quote }}
+  SYSTEM_PROMPT: {{ .Values.config.systemPrompt | quote }}

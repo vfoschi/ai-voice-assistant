@@ -1,0 +1,167 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: voice-assistant
+  namespace: voice-ai
+  labels:
+    app: voice-assistant
+    component: api
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: voice-assistant
+  template:
+    metadata:
+      labels:
+        app: voice-assistant
+        component: api
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+        prometheus.io/path: "/metrics"
+    spec:
+      serviceAccountName: voice-assistant
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+      
+      containers:
+      - name: voice-assistant
+        image: your-registry/voice-assistant:latest
+        imagePullPolicy: Always
+        
+        ports:
+        - name: http
+          containerPort: 8080
+          protocol: TCP
+        
+        env:
+        # Load from ConfigMap
+        - name: ENVIRONMENT
+          valueFrom:
+            configMapKeyRef:
+              name: voice-assistant-config
+              key: ENVIRONMENT
+        - name: DEBUG
+          valueFrom:
+            configMapKeyRef:
+              name: voice-assistant-config
+              key: DEBUG
+        - name: PORT
+          valueFrom:
+            configMapKeyRef:
+              name: voice-assistant-config
+              key: PORT
+        - name: BASE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: voice-assistant-config
+              key: BASE_URL
+        - name: LOG_LEVEL
+          valueFrom:
+            configMapKeyRef:
+              name: voice-assistant-config
+              key: LOG_LEVEL
+        - name: OPENAI_MODEL
+          valueFrom:
+            configMapKeyRef:
+              name: voice-assistant-config
+              key: OPENAI_MODEL
+        - name: ELEVENLABS_VOICE_ID
+          valueFrom:
+            configMapKeyRef:
+              name: voice-assistant-config
+              key: ELEVENLABS_VOICE_ID
+        - name: REDIS_URL
+          valueFrom:
+            configMapKeyRef:
+              name: voice-assistant-config
+              key: REDIS_URL
+        - name: INITIAL_MESSAGE
+          valueFrom:
+            configMapKeyRef:
+              name: voice-assistant-config
+              key: INITIAL_MESSAGE
+        - name: SYSTEM_PROMPT
+          valueFrom:
+            configMapKeyRef:
+              name: voice-assistant-config
+              key: SYSTEM_PROMPT
+        
+        # Load from Secrets
+        - name: TWILIO_ACCOUNT_SID
+          valueFrom:
+            secretKeyRef:
+              name: voice-assistant-secrets
+              key: TWILIO_ACCOUNT_SID
+        - name: TWILIO_AUTH_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: voice-assistant-secrets
+              key: TWILIO_AUTH_TOKEN
+        - name: TWILIO_PHONE_NUMBER
+          valueFrom:
+            secretKeyRef:
+              name: voice-assistant-secrets
+              key: TWILIO_PHONE_NUMBER
+        - name: OPENAI_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: voice-assistant-secrets
+              key: OPENAI_API_KEY
+        - name: DEEPGRAM_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: voice-assistant-secrets
+              key: DEEPGRAM_API_KEY
+        - name: ELEVENLABS_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: voice-assistant-secrets
+              key: ELEVENLABS_API_KEY
+        
+        resources:
+          requests:
+            cpu: 500m
+            memory: 512Mi
+          limits:
+            cpu: 2000m
+            memory: 2Gi
+        
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: http
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: http
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+        
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: false
+          capabilities:
+            drop:
+            - ALL
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: voice-assistant
+  namespace: voice-ai

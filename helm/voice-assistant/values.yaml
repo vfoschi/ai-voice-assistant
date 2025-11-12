@@ -1,0 +1,177 @@
+# Default values for voice-assistant Helm chart
+
+replicaCount: 2
+
+image:
+  repository: your-registry/voice-assistant
+  pullPolicy: Always
+  tag: "latest"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+podAnnotations:
+  prometheus.io/scrape: "true"
+  prometheus.io/port: "8080"
+  prometheus.io/path: "/metrics"
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  fsGroup: 1000
+
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: false
+  capabilities:
+    drop:
+    - ALL
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8080
+  annotations: {}
+  sessionAffinity: ClientIP
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+    nginx.ingress.kubernetes.io/websocket-services: "voice-assistant"
+    nginx.ingress.kubernetes.io/proxy-http-version: "1.1"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+  hosts:
+    - host: voice-assistant.your-domain.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: voice-assistant-tls
+      hosts:
+        - voice-assistant.your-domain.com
+
+resources:
+  limits:
+    cpu: 2000m
+    memory: 2Gi
+  requests:
+    cpu: 500m
+    memory: 512Mi
+
+autoscaling:
+  enabled: false
+  minReplicas: 2
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 80
+  targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+    - weight: 100
+      podAffinityTerm:
+        labelSelector:
+          matchExpressions:
+          - key: app
+            operator: In
+            values:
+            - voice-assistant
+        topologyKey: kubernetes.io/hostname
+
+# Configuration
+config:
+  environment: production
+  debug: false
+  port: 8080
+  logLevel: INFO
+  baseUrl: "https://voice-assistant.your-domain.com"
+  
+  # OpenAI
+  openaiModel: "gpt-4"
+  
+  # ElevenLabs
+  elevenlabsVoiceId: "21m00Tcm4TlvDq8ikWAM"
+  
+  # Redis
+  redisUrl: "redis://redis-service:6379/0"
+  
+  # Assistant behavior
+  initialMessage: "Ciao! Sono il tuo assistente vocale. Come posso aiutarti?"
+  systemPrompt: |
+    Sei un assistente vocale italiano cortese e professionale.
+    Rispondi in modo conciso e naturale, massimo 2-3 frasi per risposta.
+    Se non sai rispondere a qualcosa, sii onesto e chiedi se puoi aiutare in altro modo.
+    Mantieni sempre un tono amichevole ma professionale.
+    Parla in italiano.
+
+# Secrets - NEVER commit these values, use external secret management
+secrets:
+  # Twilio
+  twilioAccountSid: ""
+  twilioAuthToken: ""
+  twilioPhoneNumber: ""
+  
+  # OpenAI
+  openaiApiKey: ""
+  
+  # Deepgram
+  deepgramApiKey: ""
+  
+  # ElevenLabs
+  elevenlabsApiKey: ""
+  
+  # Optional
+  vocodeApiKey: ""
+  redisPassword: ""
+
+# External secret management (recommended for production)
+externalSecrets:
+  enabled: false
+  backendType: gcpSecretsManager  # or awsSecretsManager, azureKeyVault, vault
+  projectId: ""
+  secretName: voice-assistant-secrets
+
+# Redis dependency
+redis:
+  enabled: true
+  architecture: standalone
+  auth:
+    enabled: false
+  master:
+    persistence:
+      enabled: true
+      size: 8Gi
+
+# PostgreSQL dependency (optional)
+postgresql:
+  enabled: false
+  auth:
+    username: voiceai
+    password: changeme
+    database: voice_assistant
+  primary:
+    persistence:
+      enabled: true
+      size: 10Gi
+
+# Monitoring
+monitoring:
+  serviceMonitor:
+    enabled: false
+    interval: 30s

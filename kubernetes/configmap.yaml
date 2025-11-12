@@ -1,0 +1,37 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: voice-assistant-config
+  namespace: voice-ai
+data:
+  ENVIRONMENT: "production"
+  DEBUG: "false"
+  PORT: "8080"
+  LOG_LEVEL: "INFO"
+  
+  # BASE_URL deve essere configurato con il tuo dominio pubblico
+  BASE_URL: "https://voice-assistant.your-domain.com"
+  
+  # OpenAI Model
+  OPENAI_MODEL: "gpt-4"
+  
+  # ElevenLabs Voice
+  ELEVENLABS_VOICE_ID: "21m00Tcm4TlvDq8ikWAM"
+  
+  # Redis URL (se usi Redis nel cluster)
+  REDIS_URL: "redis://redis-service:6379/0"
+  
+  # PostgreSQL Config (se usi PostgreSQL nel cluster)
+  # POSTGRES_HOST: "postgres-service"
+  # POSTGRES_PORT: "5432"
+  # POSTGRES_DB: "voice_assistant"
+  # POSTGRES_USER: "voiceai"
+  
+  # Assistant Configuration
+  INITIAL_MESSAGE: "Ciao! Sono il tuo assistente vocale. Come posso aiutarti?"
+  SYSTEM_PROMPT: |
+    Sei un assistente vocale italiano cortese e professionale.
+    Rispondi in modo conciso e naturale, massimo 2-3 frasi per risposta.
+    Se non sai rispondere a qualcosa, sii onesto e chiedi se puoi aiutare in altro modo.
+    Mantieni sempre un tono amichevole ma professionale.
+    Parla in italiano.

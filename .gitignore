@@ -1,0 +1,83 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+*.log
+*.pot
+*.pyc
+*.pyo
+*.pyd
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.hypothesis/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Kubernetes secrets
+kubernetes/secrets/secrets.yaml
+*.secret.yaml
+*-secrets.yaml
+
+# Helm
+helm/*/charts/
+helm/*/.helmignore
+
+# Temporary files
+*.tmp
+*.bak
+*.orig
+
+# Logs
+logs/
+*.log
+
+# Environment
+.env.local
+.env.production
+.env.development
+
+# Testing
+.pytest_cache/
+test-results/
+coverage/
+
+# Docker
+.dockerignore
+
+# Misc
+TODO.md
+NOTES.md
+scratch/

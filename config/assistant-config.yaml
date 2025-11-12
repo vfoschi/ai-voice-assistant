@@ -1,0 +1,137 @@
+# Assistant Configuration
+# Configurazione del comportamento dell'assistente vocale
+
+assistant:
+  name: "Assistente Vocale Technacy"
+  version: "1.0.0"
+  language: "it-IT"
+  
+  # Messaggio iniziale quando risponde alla chiamata
+  greeting:
+    default: "Ciao! Sono l'assistente vocale di Technacy. Come posso aiutarti?"
+    business_hours: "Buongiorno! Sono l'assistente vocale di Technacy. Come posso esserti utile?"
+    after_hours: "Ciao! Grazie per aver chiamato Technacy. Siamo chiusi ma posso comunque aiutarti. Di cosa hai bisogno?"
+  
+  # Prompt di sistema per l'LLM
+  system_prompt: |
+    Sei l'assistente vocale ufficiale di Technacy Milano, un'azienda italiana specializzata in telecomunicazioni e servizi mobile.
+    
+    ISTRUZIONI COMPORTAMENTALI:
+    - Parla SEMPRE in italiano
+    - Sii cortese, professionale ma amichevole
+    - Risposte brevi: massimo 2-3 frasi per volta (le persone non amano sentir parlare troppo al telefono)
+    - Se non sai qualcosa, ammettilo onestamente e offri alternative
+    - Non inventare informazioni sui servizi Technacy
+    - Se la richiesta è troppo complessa, proponi di passare la chiamata o di essere ricontattati
+    
+    INFORMAZIONI AZIENDA:
+    - Technacy Milano è specializzata in soluzioni SIM/eSIM aziendali
+    - Offre servizi di controllo traffico dati e gestione flotte mobile
+    - Fornisce la piattaforma Netmon per gestione SIM
+    - Orari ufficio: Lun-Ven 9:00-18:00
+    - Email supporto: support@technacy.it
+    - Telefono ufficio: +39 02 XXXXXXX
+    
+    SCENARI COMUNI:
+    - Richieste informazioni prodotti → Fornisci info base e proponi di inviare documentazione via email
+    - Problemi tecnici → Raccogli informazioni e crea ticket di supporto
+    - Richieste commerciali → Raccogli contatti e passa a ufficio commerciale
+    - Richieste urgenti → Valuta urgenza e inoltra a persona competente
+  
+  # Configurazione voce
+  voice:
+    provider: "elevenlabs"
+    voice_id: "21m00Tcm4TlvDq8ikWAM"  # Rachel (o scegli altra voce italiana)
+    model: "eleven_multilingual_v2"
+    stability: 0.5
+    similarity_boost: 0.75
+    style: 0.0  # 0 = più neutro, 1 = più espressivo
+  
+  # Configurazione Speech-to-Text
+  transcription:
+    provider: "deepgram"
+    model: "nova-2"
+    language: "it"
+    punctuate: true
+    smart_format: true
+  
+  # Configurazione LLM
+  llm:
+    provider: "openai"
+    model: "gpt-4"
+    temperature: 0.7
+    max_tokens: 150  # Limita lunghezza risposte
+  
+  # Gestione chiamata
+  call_handling:
+    max_duration: 600  # 10 minuti massimo
+    silence_timeout: 10  # Secondi di silenzio prima di ripetere
+    end_phrases:
+      - "grazie"
+      - "arrivederci"
+      - "ciao"
+      - "va bene così"
+    
+    fallback_message: "Mi dispiace, non ho capito bene. Puoi ripetere per favore?"
+    
+    transfer_options:
+      enable: true
+      phone_numbers:
+        technical_support: "+39 02 XXXXXXX"
+        sales: "+39 02 YYYYYYY"
+        emergency: "+39 02 ZZZZZZZ"
+  
+  # Orari business
+  business_hours:
+    monday:
+      start: "09:00"
+      end: "18:00"
+    tuesday:
+      start: "09:00"
+      end: "18:00"
+    wednesday:
+      start: "09:00"
+      end: "18:00"
+    thursday:
+      start: "09:00"
+      end: "18:00"
+    friday:
+      start: "09:00"
+      end: "18:00"
+    saturday:
+      closed: true
+    sunday:
+      closed: true
+  
+  # Logging e analytics
+  logging:
+    record_calls: false  # Registra le chiamate (GDPR compliance required)
+    transcribe_calls: true
+    save_to_db: true
+    retention_days: 90
+
+# Scenari predefiniti (esempi)
+scenarios:
+  - name: "info_prodotti"
+    trigger_keywords:
+      - "prodotti"
+      - "servizi"
+      - "cosa offrite"
+      - "informazioni"
+    response: "Technacy offre principalmente soluzioni SIM ed eSIM aziendali con la piattaforma Netmon per controllo e gestione. Vuoi che ti invii la documentazione via email?"
+  
+  - name: "supporto_tecnico"
+    trigger_keywords:
+      - "problema"
+      - "non funziona"
+      - "errore"
+      - "aiuto tecnico"
+    response: "Capisco che hai un problema tecnico. Puoi descrivermi brevemente il problema così creo un ticket di supporto?"
+  
+  - name: "richiesta_commerciale"
+    trigger_keywords:
+      - "preventivo"
+      - "prezzo"
+      - "acquistare"
+      - "ordine"
+    response: "Per preventivi e informazioni commerciali, posso passarti all'ufficio vendite oppure prendo i tuoi dati per essere ricontattato. Cosa preferisci?"
