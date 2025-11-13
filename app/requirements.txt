@@ -10,7 +10,7 @@ twilio==8.11.0
 
 # SIP / WebRTC support
 aiortc==1.6.0  # WebRTC and media handling
-aiohttp==3.9.1  # For async HTTP operations
+aiohttp>=3.9.5  # For async HTTP operations (required by vocode)
 dnspython==2.4.2  # DNS SRV lookups for SIP
 
 # Speech-to-Text
